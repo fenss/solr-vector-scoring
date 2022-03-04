@@ -27,8 +27,8 @@
             <int name="stages">50</int>
             <int name="dimensions">256</int>
             <str name="field">dssm_vector</str>
-			<str name="lsh_hash">_dssm_lsh_hash_</str>
-			<str name="lsh_binary">_dssm_binary_vector_</str>
+            <str name="lsh_hash">_dssm_lsh_hash_</str>
+            <str name="lsh_binary">_dssm_binary_vector_</str>
         </processor>
         <processor class="solr.RunUpdateProcessorFactory" />
     </updateRequestProcessorChain>
