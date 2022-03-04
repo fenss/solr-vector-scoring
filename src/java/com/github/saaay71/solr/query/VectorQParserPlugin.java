@@ -1,7 +1,7 @@
-package com.github.saaay71.solr.query;
+package com.banggood.search.basic.query;
 
-import com.github.saaay71.solr.VectorUtils;
-import com.github.saaay71.solr.updateprocessor.LSHUpdateProcessorFactory;
+import com.banggood.search.basic.VectorUtils;
+import com.banggood.search.basic.updateprocessor.LSHUpdateProcessorFactory;
 import info.debatty.java.lsh.LSHSuperBit;
 import org.apache.lucene.queries.function.FunctionScoreQuery;
 import org.apache.lucene.search.Query;
@@ -51,10 +51,16 @@ public class VectorQParserPlugin extends QParserPlugin {
                 String[] vectorArray = vector.split(",");
 
                 if (ft != null && !localParams.getBool("lsh", false)) {
+                    /******************************************************************
+                     * 不使用LSH，用于rerank阶段直接计算向量相似度
+                     *****************************************************************/
                     q = new VectorQuery(subQuery(subQueryStr, null).getQuery());
                     q.setQueryString(localParams.toLocalParamsString());
                     query = q;
                 } else {
+                    /******************************************************************
+                     * 构造rerank查询，主查询通过LSH匹配倒排索引
+                     *****************************************************************/
                     final int topNDocs = localParams.getInt(ReRankQParserPlugin.RERANK_DOCS, ReRankQParserPlugin.RERANK_DOCS_DEFAULT);
                     String lshQuery = computeLSHQueryString(vector, vectorArray, lshHashFieldName, chainName);
                     if (subQueryStr != null && !subQueryStr.equals("")) {
@@ -63,7 +69,7 @@ public class VectorQParserPlugin extends QParserPlugin {
                     Query luceneQuery = req.getCore().getQueryPlugin("lucene")
                             .createParser(lshQuery, localParams, params, req).parse();
 
-                    // do not run cosine similarity
+                    // Do not run cosine similarity
                     if (topNDocs == 0) {
                         return luceneQuery;
                     }
